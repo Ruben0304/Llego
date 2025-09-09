@@ -101,7 +101,8 @@ fun SemicircularSlider(
     BoxWithConstraints(
         modifier = modifier
             .fillMaxWidth()
-            .height(180.dp),
+            .height(140.dp)
+            .graphicsLayer { clip = false },
         contentAlignment = Alignment.Center
     ) {
         val screenWidthDp = maxWidth
@@ -110,19 +111,22 @@ fun SemicircularSlider(
         
         // Calcular padding para que siempre haya elementos visibles en los lados
         val visibleItemsOnSide = 2 // Cantidad de elementos visibles en cada lado
+        val extraPadding = 30.dp // Espacio adicional para elementos transformados
         val sidePadding = if (categories.size > visibleItemsOnSide * 2 + 1) {
-            // Padding que permite ver elementos laterales
-            itemWidthDp * visibleItemsOnSide 
+            // Padding que permite ver elementos laterales + espacio para transformaciones
+            itemWidthDp * visibleItemsOnSide + extraPadding
         } else {
-            // Si hay pocos elementos, padding para centrarlos
-            maxOf(16.dp, (screenWidthDp - (categories.size * itemWidthDp)) / 2f)
+            // Si hay pocos elementos, padding para centrarlos + espacio para transformaciones
+            maxOf(16.dp + extraPadding, (screenWidthDp - (categories.size * itemWidthDp)) / 2f + extraPadding)
         }
         
         LazyRow(
             state = listState,
             horizontalArrangement = Arrangement.spacedBy(20.dp),
             contentPadding = PaddingValues(horizontal = sidePadding),
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier
+                .fillMaxWidth()
+                .graphicsLayer { clip = false }
         ) {
             itemsIndexed(repeatedCategories) { index, category ->
                 val scrollOffset by remember {
@@ -146,7 +150,6 @@ fun SemicircularSlider(
                 val alpha = (1f - abs(normalizedOffset) * 0.4f).coerceAtLeast(0.3f)
                 
                 CategoryItem(
-                    icon = category.icon,
                     text = category.text,
                     circleSize = itemSize,
                     modifier = Modifier
@@ -155,6 +158,7 @@ fun SemicircularSlider(
                             rotationZ = rotation
                             scaleX = scale
                             scaleY = scale
+                            clip = false
                         }
                 )
             }

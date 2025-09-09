@@ -1,29 +1,14 @@
 package com.llego.multiplatform
 
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.safeContentPadding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.BoxWithConstraints
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.foundation.lazy.grid.GridCells
-import androidx.compose.foundation.lazy.grid.items
-import androidx.compose.foundation.lazy.items
-import androidx.compose.material3.Button
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Restaurant
 import androidx.compose.material.icons.filled.LocalPizza
@@ -40,15 +25,11 @@ import androidx.compose.ui.unit.dp
 import com.llego.multiplatform.ui.components.atoms.CartButton
 import com.llego.multiplatform.ui.components.atoms.SearchBar
 import com.llego.multiplatform.ui.components.background.CurvedBackground
-import com.llego.multiplatform.ui.components.molecules.ProductCard
+import com.llego.multiplatform.ui.components.sections.ProductsSection
 import com.llego.multiplatform.ui.components.molecules.SemicircularSlider
 import com.llego.multiplatform.ui.components.molecules.CategoryData
 import com.llego.multiplatform.ui.theme.LlegoTheme
-import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.ui.tooling.preview.Preview
-
-import llego.composeapp.generated.resources.Res
-import llego.composeapp.generated.resources.compose_multiplatform
 
 data class Product(
     val id: Int,
@@ -70,7 +51,7 @@ fun App() {
             
             val cardWidth = screenWidth * 0.30f
             val cardHeight = screenHeight * 0.28f
-            val buttonHeight = screenHeight * 0.06f
+            val buttonHeight = screenHeight * 0.063f
             
             val categories = remember {
                 listOf(
@@ -209,7 +190,7 @@ fun App() {
                         )
                     }
 
-                    Spacer(modifier = Modifier.height(95.dp))
+                    Spacer(modifier = Modifier.height(110.dp))
                     
                     SemicircularSlider(
                         categories = categories,
@@ -218,31 +199,47 @@ fun App() {
                     
                     Spacer(modifier = Modifier.height(16.dp))
                     
-                    LazyRow(
-                        contentPadding = androidx.compose.foundation.layout.PaddingValues(horizontal = 16.dp),
-                        horizontalArrangement = Arrangement.spacedBy(8.dp),
-                    ) {
-                        items(products) { product ->
-                            ProductCard(
-                                imageUrl = product.imageUrl,
-                                name = product.name,
-                                shop = product.shop,
-                                weight = product.weight,
-                                price = product.price,
-                                count = productCounts[product.id] ?: 0,
-                                onIncrement = {
-                                    productCounts[product.id] = (productCounts[product.id] ?: 0) + 1
-                                },
-                                onDecrement = {
-                                    val currentCount = productCounts[product.id] ?: 0
-                                    if (currentCount > 0) {
-                                        productCounts[product.id] = currentCount - 1
-                                    }
-                                },
-                                modifier = Modifier.size(width = cardWidth, height = cardHeight)
-                            )
+//                    Row(
+//                        modifier = Modifier
+//                            .fillMaxWidth()
+//                            .padding(horizontal = 16.dp),
+//                        horizontalArrangement = Arrangement.SpaceEvenly,
+//                        verticalAlignment = Alignment.CenterVertically
+//                    ) {
+//                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+//                            Text("Small", style = MaterialTheme.typography.bodySmall)
+//                            Loader(size = LoaderSize.Small)
+//                        }
+//                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+//                            Text("Medium", style = MaterialTheme.typography.bodySmall)
+//                            Loader(size = LoaderSize.Medium)
+//                        }
+//                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+//                            Text("Large", style = MaterialTheme.typography.bodySmall)
+//                            Loader(size = LoaderSize.Large)
+//                        }
+//                    }
+                    
+                    Spacer(modifier = Modifier.height(16.dp))
+                    
+                    ProductsSection(
+                        products = products,
+                        productCounts = productCounts,
+                        onIncrement = { productId ->
+                            productCounts[productId] = (productCounts[productId] ?: 0) + 1
+                        },
+                        onDecrement = { productId ->
+                            val currentCount = productCounts[productId] ?: 0
+                            if (currentCount > 0) {
+                                productCounts[productId] = currentCount - 1
+                            }
+                        },
+                        cardWidth = cardWidth,
+                        cardHeight = cardHeight,
+                        onSeeMoreClick = { 
+                            // Handle see more click
                         }
-                    }
+                    )
                 }
             }
         }
