@@ -1,0 +1,88 @@
+package com.llego.multiplatform.ui.components.background
+
+import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Path
+import androidx.compose.ui.graphics.drawscope.DrawScope
+
+@Composable
+fun CurvedBackground(
+    modifier: Modifier = Modifier,
+    curveStart: () -> Float = { 0.25f },
+    curveEnd: () -> Float = { 0.25f },
+    curveInclination: () -> Float = { 0.08f },
+    content: @Composable () -> Unit
+) {
+    val primaryColor = MaterialTheme.colorScheme.primary
+    val surfaceColor = MaterialTheme.colorScheme.background
+
+    Box(
+        modifier = modifier.fillMaxSize()
+    ) {
+        Canvas(
+            modifier = Modifier.fillMaxSize()
+        ) {
+            drawCurvedBackground(
+                primaryColor = primaryColor,
+                surfaceColor = surfaceColor,
+                curveStart = curveStart(),
+                curveEnd = curveEnd(),
+                curveInclination = curveInclination()
+            )
+        }
+        
+        content()
+    }
+}
+
+private fun DrawScope.drawCurvedBackground(
+    primaryColor: androidx.compose.ui.graphics.Color,
+    surfaceColor: androidx.compose.ui.graphics.Color,
+    curveStart: Float,
+    curveEnd: Float,
+    curveInclination: Float
+) {
+    val width = size.width
+    val height = size.height
+    val curveStartY = height * curveStart
+    val curveEndY = height * curveEnd
+
+    // Dibujar fondo gris (superficie) completo
+    drawRect(
+        color = surfaceColor,
+        size = size
+    )
+
+    // Crear el path para la parte verde con curva
+    val path = Path().apply {
+        // Empezar desde la esquina superior izquierda
+        moveTo(0f, 0f)
+        // Línea hasta donde empieza la curva
+        lineTo(0f, curveStartY)
+        
+        // Curva con inclinación configurable
+        val curveHeight = height * curveInclination
+        val controlPointY = curveStartY + curveHeight
+        
+        // Curva cúbica que simula un semicírculo
+        cubicTo(
+            width * 0.25f, controlPointY,  // Primer punto de control
+            width * 0.75f, controlPointY,  // Segundo punto de control
+            width, curveEndY                // Punto final usando curveEnd
+        )
+        
+        // Completar el rectángulo verde
+        lineTo(width, 0f)
+        close()
+    }
+
+    // Dibujar la parte verde
+    drawPath(
+        path = path,
+        color = primaryColor
+    )
+}

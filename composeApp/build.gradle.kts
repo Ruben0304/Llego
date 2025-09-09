@@ -32,6 +32,8 @@ kotlin {
         androidMain.dependencies {
             implementation(compose.preview)
             implementation(libs.androidx.activity.compose)
+            implementation("io.coil-kt.coil3:coil-network-okhttp:3.0.0-alpha06")
+            implementation("com.airbnb.android:lottie-compose:6.6.7")
         }
         commonMain.dependencies {
             implementation(compose.runtime)
@@ -40,8 +42,11 @@ kotlin {
             implementation(compose.ui)
             implementation(compose.components.resources)
             implementation(compose.components.uiToolingPreview)
+            implementation(compose.materialIconsExtended)
             implementation(libs.androidx.lifecycle.viewmodelCompose)
             implementation(libs.androidx.lifecycle.runtimeCompose)
+            implementation("io.coil-kt.coil3:coil-compose:3.0.0-alpha06")
+            api("androidx.lifecycle:lifecycle-viewmodel-compose:2.9.3")
         }
         commonTest.dependencies {
             implementation(libs.kotlin.test)
@@ -49,6 +54,7 @@ kotlin {
         jvmMain.dependencies {
             implementation(compose.desktop.currentOs)
             implementation(libs.kotlinx.coroutinesSwing)
+            implementation("io.coil-kt.coil3:coil-network-ktor:3.0.0-alpha06")
         }
     }
 }
