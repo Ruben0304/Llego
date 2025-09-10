@@ -24,18 +24,19 @@ data class CategoryData(
 private fun calculateSemicircleY(scrollOffset: Float, maxOffset: Float): Float {
     // Normalizar el offset de -1 a 1
     val normalizedOffset = (scrollOffset / maxOffset).coerceIn(-1f, 1f)
-    
+
     // Crear semicírculo clásico usando la ecuación del círculo: y = sqrt(r² - x²)
     // Radio más pronunciado similar a curved background
     val radius = 180f
     val x = normalizedOffset * radius
     val absX = abs(x)
-    
+
     return if (absX <= radius) {
-        // Semicírculo hacia abajo
+        // Semicírculo hacia abajo - mantener la curva pronunciada original
         sqrt(radius * radius - x * x) - radius
     } else {
-        -radius // Fuera del semicírculo, mantener en el borde
+        // Fuera del semicírculo, continuar la curva suavemente
+        -radius
     }
 }
 
@@ -63,24 +64,24 @@ fun SemicircularSlider(
             }
         }
     }
-    
+
     // Calcular índice inicial (centro de la lista repetida)
     val initialIndex = remember(categories) {
         if (categories.isEmpty()) 0
         else (repeatedCategories.size / 2) - (categories.size / 2)
     }
-    
+
     val listState = rememberLazyListState(initialFirstVisibleItemIndex = initialIndex)
     val density = LocalDensity.current
-    
+
     // Efecto para mantener el scroll en el centro (infinite scroll)
     LaunchedEffect(listState) {
-        snapshotFlow { 
-            listState.firstVisibleItemIndex 
+        snapshotFlow {
+            listState.firstVisibleItemIndex
         }.collect { firstVisibleIndex ->
             val totalItems = repeatedCategories.size
             val originalSize = categories.size
-            
+
             if (originalSize > 0) {
                 // Si estamos muy cerca del principio, saltar al centro-final
                 if (firstVisibleIndex < originalSize * 2) {
@@ -95,18 +96,20 @@ fun SemicircularSlider(
             }
         }
     }
-    
+
     BoxWithConstraints(
         modifier = modifier
             .fillMaxWidth()
-            .height(180.dp)
-            .graphicsLayer { clip = false },
+            .height(240.dp) // Aumentado para dar espacio al semicírculo
+            .graphicsLayer {
+                clip = false
+            },
         contentAlignment = Alignment.Center
     ) {
         val screenWidthDp = maxWidth
         val itemWidthDp = (itemSize + 20).dp // itemSize + spacing
         val itemsVisible = (screenWidthDp / itemWidthDp).toInt()
-        
+
         // Calcular padding para que siempre haya elementos visibles en los lados
         val visibleItemsOnSide = 2 // Cantidad de elementos visibles en cada lado
         val extraPadding = 30.dp // Espacio adicional para elementos transformados
@@ -117,17 +120,20 @@ fun SemicircularSlider(
             // Si hay pocos elementos, padding para centrarlos + espacio para transformaciones
             maxOf(16.dp + extraPadding, (screenWidthDp - (categories.size * itemWidthDp)) / 2f + extraPadding)
         }
-        
+
         LazyRow(
             state = listState,
             horizontalArrangement = Arrangement.spacedBy(20.dp),
             contentPadding = PaddingValues(
                 horizontal = sidePadding,
-                vertical = 20.dp
+                vertical = 50.dp // Padding aumentado para el semicírculo
             ),
             modifier = Modifier
                 .fillMaxWidth()
-                .graphicsLayer { clip = false }
+                .fillMaxHeight()
+                .graphicsLayer {
+                    clip = false
+                }
         ) {
             itemsIndexed(repeatedCategories) { index, category ->
                 val scrollOffset by remember {
@@ -140,16 +146,16 @@ fun SemicircularSlider(
                         } else 0f
                     }
                 }
-                
-                // Calcular posición Y semicircular
+
+                // Calcular posición Y semicircular pronunciada
                 val yOffset = calculateSemicircleY(scrollOffset, 200f)
-                
+
                 // Efectos visuales suaves
                 val normalizedOffset = (scrollOffset / 250f).coerceIn(-1f, 1f)
                 val rotation = -normalizedOffset * 8f
                 val scale = 1f - (abs(normalizedOffset) * 0.15f).coerceAtMost(0.3f)
                 val alpha = (1f - abs(normalizedOffset) * 0.4f).coerceAtLeast(0.3f)
-                
+
                 CategoryItem(
                     text = category.text,
                     circleSize = itemSize,

@@ -71,7 +71,8 @@ class HomeViewModel(
                 _state.update { 
                     it.copy(
                         homeDataState = UiState.Success(homeData),
-                        productCounts = productCounts
+                        productCounts = productCounts,
+                        filteredProducts = homeData.products // Initially show all products
                     )
                 }
             } catch (e: Exception) {
@@ -117,10 +118,31 @@ class HomeViewModel(
 
 
     /**
-     * Update search query
+     * Update search query and recompute filtered products
      */
     private fun updateSearchQuery(query: String) {
-        _state.update { it.copy(searchQuery = query) }
+        _state.update { currentState ->
+            val filteredProducts = filterProducts(currentState.products, query)
+            currentState.copy(
+                searchQuery = query,
+                filteredProducts = filteredProducts
+            )
+        }
+    }
+    
+    /**
+     * Filter products based on search query
+     * This computation is now done once when needed, not on every recomposition
+     */
+    private fun filterProducts(products: List<Product>, searchQuery: String): List<Product> {
+        return if (searchQuery.isBlank()) {
+            products
+        } else {
+            products.filter { product ->
+                product.name.contains(searchQuery, ignoreCase = true) ||
+                product.shop.contains(searchQuery, ignoreCase = true)
+            }
+        }
     }
 
     /**

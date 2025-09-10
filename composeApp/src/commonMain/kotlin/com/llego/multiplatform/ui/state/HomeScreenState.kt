@@ -13,7 +13,8 @@ data class HomeScreenState(
     val categoriesState: UiState<List<CategoryData>> = UiState.Loading,
     val searchQuery: String = "",
     val selectedCategoryIndex: Int = 0,
-    val productCounts: Map<Int, Int> = emptyMap()
+    val productCounts: Map<Int, Int> = emptyMap(),
+    val filteredProducts: List<Product> = emptyList()
 ) {
     /**
      * Returns the list of products if successfully loaded, empty list otherwise
@@ -51,25 +52,6 @@ data class HomeScreenState(
     val totalCartItems: Int
         get() = productCounts.values.sum()
     
-    /**
-     * Returns filtered products based on search query and selected category
-     */
-    val filteredProducts: List<Product>
-        get() {
-            val baseProducts = products
-            
-            return baseProducts.filter { product ->
-                // Filter by search query if provided
-                val matchesSearch = if (searchQuery.isBlank()) {
-                    true
-                } else {
-                    product.name.contains(searchQuery, ignoreCase = true) ||
-                    product.shop.contains(searchQuery, ignoreCase = true)
-                }
-                
-                matchesSearch
-            }
-        }
 }
 
 /**

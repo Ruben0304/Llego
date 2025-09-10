@@ -12,7 +12,7 @@ import com.llego.multiplatform.ui.components.organisms.CategoryData
 
 class CategoryRepository {
     
-    fun getCategories(): List<CategoryData> {
+    suspend fun getCategories(): List<CategoryData> {
         return listOf(
             CategoryData(Icons.Default.LocalPizza, "Italiana"),
             CategoryData(Icons.Default.Restaurant, "Carnes"),
