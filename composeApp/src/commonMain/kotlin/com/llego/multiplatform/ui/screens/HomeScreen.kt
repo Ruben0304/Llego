@@ -188,7 +188,7 @@ private fun SuccessContent(
             }
         }
 
-        Spacer(modifier = Modifier.height(13.dp))
+//        Spacer(modifier = Modifier.height(13.dp))
 
         if (state.categories.isNotEmpty()) {
             SemicircularSlider(

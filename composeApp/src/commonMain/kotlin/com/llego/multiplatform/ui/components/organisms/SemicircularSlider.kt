@@ -44,7 +44,7 @@ private fun calculateSemicircleY(scrollOffset: Float, maxOffset: Float): Float {
 fun SemicircularSlider(
     categories: List<CategoryData>,
     modifier: Modifier = Modifier,
-    itemSize: Int = 60,
+    itemSize: Int = 70,
     curveStart: Float = 0.25f,
     curveEnd: Float = 0.25f,
     curveInclination: Float = 0.08f,
@@ -100,7 +100,7 @@ fun SemicircularSlider(
     BoxWithConstraints(
         modifier = modifier
             .fillMaxWidth()
-            .height(240.dp) // Aumentado para dar espacio al semicírculo
+            .height(180.dp) // Aumentado para dar espacio al semicírculo
             .graphicsLayer {
                 clip = false
             },
@@ -108,25 +108,18 @@ fun SemicircularSlider(
     ) {
         val screenWidthDp = maxWidth
         val itemWidthDp = (itemSize + 20).dp // itemSize + spacing
-        val itemsVisible = (screenWidthDp / itemWidthDp).toInt()
 
-        // Calcular padding para que siempre haya elementos visibles en los lados
-        val visibleItemsOnSide = 2 // Cantidad de elementos visibles en cada lado
-        val extraPadding = 30.dp // Espacio adicional para elementos transformados
-        val sidePadding = if (categories.size > visibleItemsOnSide * 2 + 1) {
-            // Padding que permite ver elementos laterales + espacio para transformaciones
-            itemWidthDp * visibleItemsOnSide + extraPadding
-        } else {
-            // Si hay pocos elementos, padding para centrarlos + espacio para transformaciones
-            maxOf(16.dp + extraPadding, (screenWidthDp - (categories.size * itemWidthDp)) / 2f + extraPadding)
-        }
+        // Calcular padding para mostrar solo 4 elementos
+        val visibleItems = 4
+        val totalWidthForItems = itemWidthDp * visibleItems
+        val sidePadding = (screenWidthDp - totalWidthForItems) / 2f + itemWidthDp
 
         LazyRow(
             state = listState,
-            horizontalArrangement = Arrangement.spacedBy(20.dp),
+            horizontalArrangement = Arrangement.spacedBy(40.dp),
             contentPadding = PaddingValues(
                 horizontal = sidePadding,
-                vertical = 50.dp // Padding aumentado para el semicírculo
+                vertical = 40.dp // Padding aumentado para el semicírculo
             ),
             modifier = Modifier
                 .fillMaxWidth()
@@ -138,20 +131,54 @@ fun SemicircularSlider(
             itemsIndexed(repeatedCategories) { index, category ->
                 val scrollOffset by remember {
                     derivedStateOf {
-                        val itemInfo = listState.layoutInfo.visibleItemsInfo.firstOrNull { it.index == index }
+                        val layoutInfo = listState.layoutInfo
+                        val viewportCenter = layoutInfo.viewportStartOffset + layoutInfo.viewportSize.width / 2f
+
+                        // Buscar el item actual o calcular su posición estimada
+                        val itemInfo = layoutInfo.visibleItemsInfo.firstOrNull { it.index == index }
+
                         if (itemInfo != null) {
-                            val center = listState.layoutInfo.viewportStartOffset + listState.layoutInfo.viewportSize.width / 2f
+                            // El item está visible, usar su posición real
                             val itemCenter = itemInfo.offset + itemInfo.size / 2f
-                            (itemCenter - center) / density.density
-                        } else 0f
+                            (itemCenter - viewportCenter) / density.density
+                        } else {
+                            // El item no está visible, estimar su posición para transición suave
+                            val visibleItems = layoutInfo.visibleItemsInfo
+                            if (visibleItems.isNotEmpty()) {
+                                val firstVisible = visibleItems.first()
+                                val lastVisible = visibleItems.last()
+                                val avgItemSize = (itemSize + 20) * density.density
+
+                                when {
+                                    index < firstVisible.index -> {
+                                        // Item está antes del viewport
+                                        val distance = (firstVisible.index - index) * avgItemSize
+                                        val estimatedCenter = firstVisible.offset - distance + avgItemSize / 2f
+                                        (estimatedCenter - viewportCenter) / density.density
+                                    }
+                                    index > lastVisible.index -> {
+                                        // Item está después del viewport
+                                        val distance = (index - lastVisible.index) * avgItemSize
+                                        val estimatedCenter = lastVisible.offset + lastVisible.size + distance - avgItemSize / 2f
+                                        (estimatedCenter - viewportCenter) / density.density
+                                    }
+                                    else -> 0f
+                                }
+                            } else {
+                                0f
+                            }
+                        }
                     }
                 }
 
+                // Limitar el offset para evitar valores extremos
+                val clampedOffset = scrollOffset.coerceIn(-200f, 200f)
+
                 // Calcular posición Y semicircular pronunciada
-                val yOffset = calculateSemicircleY(scrollOffset, 200f)
+                val yOffset = calculateSemicircleY(clampedOffset, 200f)
 
                 // Efectos visuales suaves
-                val normalizedOffset = (scrollOffset / 250f).coerceIn(-1f, 1f)
+                val normalizedOffset = (clampedOffset / 250f).coerceIn(-1f, 1f)
                 val rotation = -normalizedOffset * 8f
                 val scale = 1f - (abs(normalizedOffset) * 0.15f).coerceAtMost(0.3f)
                 val alpha = (1f - abs(normalizedOffset) * 0.4f).coerceAtLeast(0.3f)

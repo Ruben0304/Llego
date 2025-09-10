@@ -20,6 +20,8 @@ class CategoryRepository {
             CategoryData(Icons.Default.LocalDining, "Gourmet"),
             CategoryData(Icons.Default.Cake, "Postres"),
             CategoryData(Icons.Default.Coffee, "Bebidas"),
+            CategoryData(Icons.Default.Icecream, "Helados"),
+            CategoryData(Icons.Default.Coffee, "Bebidas"),
             CategoryData(Icons.Default.Icecream, "Helados")
         )
     }

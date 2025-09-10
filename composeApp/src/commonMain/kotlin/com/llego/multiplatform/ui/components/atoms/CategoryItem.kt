@@ -25,7 +25,7 @@ import org.jetbrains.compose.resources.painterResource
 fun CategoryItem(
     text: String,
     modifier: Modifier = Modifier,
-    circleSize: Int = 60
+    circleSize: Int = 80
 ) {
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
