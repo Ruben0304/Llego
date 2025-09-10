@@ -1,12 +1,8 @@
-package com.llego.multiplatform.ui.components.atoms
-import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.size
+package com.llego.multiplatform.ui.components.molecules
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
@@ -20,7 +16,7 @@ import androidx.compose.ui.draw.clip
 @Composable
 fun SearchBar(
     modifier: Modifier = Modifier,
-    hint: String = "Search for Grocery",
+    hint: String = "Search for 'Grocery'",
     onValueChange: (String) -> Unit = {}
 ) {
     var text by remember { mutableStateOf("") }
@@ -36,7 +32,7 @@ fun SearchBar(
         placeholder = {
             Text(
                 text = hint,
-                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
+                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
             )
         },
         leadingIcon = {

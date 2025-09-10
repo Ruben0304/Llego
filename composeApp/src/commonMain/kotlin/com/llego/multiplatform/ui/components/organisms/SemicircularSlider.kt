@@ -1,4 +1,4 @@
-package com.llego.multiplatform.ui.components.molecules
+package com.llego.multiplatform.ui.components.organisms
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyRow
@@ -8,7 +8,6 @@ import androidx.compose.runtime.*
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalDensity
@@ -16,7 +15,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.times
 import com.llego.multiplatform.ui.components.atoms.CategoryItem
 import kotlin.math.*
-import kotlinx.coroutines.flow.collect
 
 data class CategoryData(
     val icon: ImageVector,

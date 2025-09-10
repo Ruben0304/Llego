@@ -45,15 +45,27 @@ Open the `iosApp` directory in Xcode and run from there, or use the run configur
 - Android Gradle Plugin 8.10.1
 - Compose Hot Reload 1.0.0-beta06
 - AndroidX Lifecycle 2.9.3
+- Coil (Image loading) 3.0.0-alpha06
+- Lottie Compose 6.6.7 (Android animations)
 
 ## Architecture Notes
 
 The project uses a typical Compose Multiplatform structure with:
-- Platform-specific implementations in respective `*Main` folders
-- Shared UI code in `commonMain` using Compose
-- Entry points: `MainActivity.kt` (Android), `MainViewController.kt` (iOS), `main.kt` (Desktop)
-- Main UI component in `App.kt` with Material 3 theming
-- Platform detection through `Platform.kt` interface with platform-specific implementations
+- **UI Architecture**: MVVM pattern with ViewModels for state management
+- **State Management**: Uses `StateFlow` and `collectAsStateWithLifecycle()` for reactive UI updates
+- **Component Structure**: Follows atomic design principles:
+  - `atoms/` - Basic UI elements (CartButton, CategoryItem, CounterControls)
+  - `molecules/` - Composite components (ProductCard, SearchBar, StoreCard)  
+  - `organisms/` - Complex sections (ProductsSection, SemicircularSlider, Section)
+  - `background/` - Background components (CurvedBackground)
+- **Platform-specific implementations** in respective `*Main` folders
+- **Shared UI code** in `commonMain` using Compose with Material 3 theming
+- **Entry points**: `MainActivity.kt` (Android), `MainViewController.kt` (iOS), `main.kt` (Desktop)
+- **Main UI component** in `App.kt` with custom `LlegoTheme`
+- **Platform detection** through `Platform.kt` interface with platform-specific implementations
+- **Data layer**: Repository pattern for data access (`ProductRepository`, `CategoryRepository`)
+- **Models**: Data classes in `/data/model/` (Product)
+- **State management**: UI state classes in `/ui/state/` (HomeScreenState, UiState)
 
 ## Testing
 

@@ -15,8 +15,9 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import com.llego.multiplatform.ui.theme.shapes.CounterControlsShape
-import com.llego.multiplatform.ui.components.molecules.PillButton
+import com.llego.multiplatform.ui.components.atoms.PillButton
 
 @Composable
 fun CounterControls(
@@ -56,7 +57,10 @@ fun CounterControls(
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .clickable { onIncrement() },
+                        .clickable(
+                            indication = null,
+                            interactionSource = MutableInteractionSource()
+                        ) { onIncrement() },
                     contentAlignment = Alignment.Center
                 ) {
                     Text(
@@ -72,7 +76,9 @@ fun CounterControls(
                 Row(
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically,
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 8.dp)
                 ) {
                     PillButton("–", onDecrement)
                     AnimatedContent(
@@ -97,17 +103,7 @@ fun CounterControls(
                             )
                         )
                     }
-                    Text(
-                        text = "+",
-                        style = MaterialTheme.typography.titleMedium.copy(
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
-                            fontWeight = FontWeight.Bold
-                        ),
-                        textAlign = TextAlign.Center,
-                        modifier = Modifier
-                            .clickable { onIncrement() }
-                            .padding(8.dp)
-                    )
+                    PillButton("+", onIncrement)
                 }
             }
         }

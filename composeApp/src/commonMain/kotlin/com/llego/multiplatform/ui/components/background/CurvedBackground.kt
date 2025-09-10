@@ -12,8 +12,8 @@ import androidx.compose.ui.graphics.drawscope.DrawScope
 @Composable
 fun CurvedBackground(
     modifier: Modifier = Modifier,
-    curveStart: () -> Float = { 0.25f },
-    curveEnd: () -> Float = { 0.25f },
+    curveStart: () -> Float = { 0.22f },
+    curveEnd: () -> Float = { 0.22f },
     curveInclination: () -> Float = { 0.08f },
     content: @Composable () -> Unit
 ) {

@@ -43,10 +43,13 @@ kotlin {
             implementation(compose.components.resources)
             implementation(compose.components.uiToolingPreview)
             implementation(compose.materialIconsExtended)
+            
+            // ViewModel dependencies for KMP
+            api(libs.androidx.lifecycle.viewmodel)
             implementation(libs.androidx.lifecycle.viewmodelCompose)
             implementation(libs.androidx.lifecycle.runtimeCompose)
+            
             implementation("io.coil-kt.coil3:coil-compose:3.0.0-alpha06")
-            api("androidx.lifecycle:lifecycle-viewmodel-compose:2.9.3")
         }
         commonTest.dependencies {
             implementation(libs.kotlin.test)
