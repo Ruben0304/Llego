@@ -1,0 +1,9 @@
+query GetStores {
+  stores {
+    id
+    name
+    etaMinutes
+    logoUrl
+    bannerUrl
+  }
+}

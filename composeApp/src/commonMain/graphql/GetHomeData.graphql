@@ -1,0 +1,17 @@
+query GetHomeData {
+  products {
+    id
+    name
+    shop
+    weight
+    price
+    imageUrl
+  }
+  stores {
+    id
+    name
+    etaMinutes
+    logoUrl
+    bannerUrl
+  }
+}

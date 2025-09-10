@@ -1,0 +1,30 @@
+type ProductType {
+  id: Int!
+  name: String!
+  shop: String!
+  weight: String!
+  price: String!
+  imageUrl: String!
+}
+
+type Query {
+  """Saludo de ejemplo"""
+  hello: String!
+
+  """Saluda por nombre"""
+  greet(name: String! = "mundo"): String!
+
+  """Lista de tiendas"""
+  stores: [StoreType!]!
+
+  """Lista de productos"""
+  products: [ProductType!]!
+}
+
+type StoreType {
+  id: Int!
+  name: String!
+  etaMinutes: Int!
+  logoUrl: String!
+  bannerUrl: String!
+}

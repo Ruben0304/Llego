@@ -1,16 +1,16 @@
 package com.llego.multiplatform.ui.state
 
+import com.llego.multiplatform.data.model.HomeData
 import com.llego.multiplatform.data.model.Product
 import com.llego.multiplatform.data.model.Store
 import com.llego.multiplatform.ui.components.organisms.CategoryData
 
 /**
- * Represents the complete state of the Home Screen
+ * Represents the complete state of the Home Screen with unified loading state
  */
 data class HomeScreenState(
-    val productsState: UiState<List<Product>> = UiState.Loading,
+    val homeDataState: UiState<HomeData> = UiState.Loading,
     val categoriesState: UiState<List<CategoryData>> = UiState.Loading,
-    val storesState: UiState<List<Store>> = UiState.Loading,
     val searchQuery: String = "",
     val selectedCategoryIndex: Int = 0,
     val productCounts: Map<Int, Int> = emptyMap()
@@ -19,7 +19,7 @@ data class HomeScreenState(
      * Returns the list of products if successfully loaded, empty list otherwise
      */
     val products: List<Product>
-        get() = productsState.getDataOrNull() ?: emptyList()
+        get() = homeDataState.getDataOrNull()?.products ?: emptyList()
     
     /**
      * Returns the list of categories if successfully loaded, empty list otherwise
@@ -31,19 +31,19 @@ data class HomeScreenState(
      * Returns the list of stores if successfully loaded, empty list otherwise
      */
     val stores: List<Store>
-        get() = storesState.getDataOrNull() ?: emptyList()
+        get() = homeDataState.getDataOrNull()?.stores ?: emptyList()
     
     /**
      * Returns true if any data is currently loading
      */
     val isLoading: Boolean
-        get() = productsState.isLoading() || categoriesState.isLoading() || storesState.isLoading()
+        get() = homeDataState.isLoading() || categoriesState.isLoading()
     
     /**
      * Returns true if there's any error in loading data
      */
     val hasError: Boolean
-        get() = productsState.isError() || categoriesState.isError() || storesState.isError()
+        get() = homeDataState.isError() || categoriesState.isError()
     
     /**
      * Returns the total number of items in cart

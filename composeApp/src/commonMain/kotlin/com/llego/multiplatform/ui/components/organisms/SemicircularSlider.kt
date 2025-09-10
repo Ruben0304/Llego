@@ -99,7 +99,7 @@ fun SemicircularSlider(
     BoxWithConstraints(
         modifier = modifier
             .fillMaxWidth()
-            .height(140.dp)
+            .height(180.dp)
             .graphicsLayer { clip = false },
         contentAlignment = Alignment.Center
     ) {
@@ -121,7 +121,10 @@ fun SemicircularSlider(
         LazyRow(
             state = listState,
             horizontalArrangement = Arrangement.spacedBy(20.dp),
-            contentPadding = PaddingValues(horizontal = sidePadding),
+            contentPadding = PaddingValues(
+                horizontal = sidePadding,
+                vertical = 20.dp
+            ),
             modifier = Modifier
                 .fillMaxWidth()
                 .graphicsLayer { clip = false }

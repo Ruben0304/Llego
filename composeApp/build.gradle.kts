@@ -7,6 +7,7 @@ plugins {
     alias(libs.plugins.composeMultiplatform)
     alias(libs.plugins.composeCompiler)
     alias(libs.plugins.composeHotReload)
+    alias(libs.plugins.apolloGraphQl)
 }
 
 kotlin {
@@ -34,6 +35,9 @@ kotlin {
             implementation(libs.androidx.activity.compose)
             implementation("io.coil-kt.coil3:coil-network-okhttp:3.0.0-alpha06")
             implementation("com.airbnb.android:lottie-compose:6.6.7")
+            
+            // Apollo GraphQL for Android
+            implementation("com.apollographql.apollo:apollo-runtime:4.3.3")
         }
         commonMain.dependencies {
             implementation(compose.runtime)
@@ -50,6 +54,9 @@ kotlin {
             implementation(libs.androidx.lifecycle.runtimeCompose)
             
             implementation("io.coil-kt.coil3:coil-compose:3.0.0-alpha06")
+            
+            // Apollo GraphQL
+            api(libs.apollo.runtime)
         }
         commonTest.dependencies {
             implementation(libs.kotlin.test)
@@ -58,6 +65,21 @@ kotlin {
             implementation(compose.desktop.currentOs)
             implementation(libs.kotlinx.coroutinesSwing)
             implementation("io.coil-kt.coil3:coil-network-ktor:3.0.0-alpha06")
+            
+            // Apollo GraphQL for JVM
+            implementation("com.apollographql.apollo:apollo-runtime-jvm:4.3.3")
+        }
+        val iosArm64Main by getting {
+            dependencies {
+                // Apollo GraphQL for iOS ARM64
+                implementation("com.apollographql.apollo:apollo-runtime-iosarm64:4.3.3")
+            }
+        }
+        val iosSimulatorArm64Main by getting {
+            dependencies {
+                // Apollo GraphQL for iOS Simulator ARM64
+                implementation("com.apollographql.apollo:apollo-runtime-iossimulatorarm64:4.3.3")
+            }
         }
     }
 }
@@ -102,5 +124,11 @@ compose.desktop {
             packageName = "com.llego.multiplatform"
             packageVersion = "1.0.0"
         }
+    }
+}
+
+apollo {
+    service("service") {
+        packageName.set("com.llego.multiplatform.graphql")
     }
 }

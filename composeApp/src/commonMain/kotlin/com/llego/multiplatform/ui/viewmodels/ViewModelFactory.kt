@@ -3,7 +3,7 @@ package com.llego.multiplatform.ui.viewmodels
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewmodel.CreationExtras
-import com.llego.multiplatform.data.repositories.ProductRepository
+import com.llego.multiplatform.data.repositories.HomeRepository
 import com.llego.multiplatform.data.repositories.CategoryRepository
 import kotlin.reflect.KClass
 
@@ -11,7 +11,7 @@ import kotlin.reflect.KClass
  * Factory for creating ViewModels with dependency injection
  */
 class ViewModelFactory(
-    private val productRepository: ProductRepository = ProductRepository(),
+    private val homeRepository: HomeRepository = HomeRepository(),
     private val categoryRepository: CategoryRepository = CategoryRepository()
 ) : ViewModelProvider.Factory {
 
@@ -22,7 +22,7 @@ class ViewModelFactory(
     ): T {
         return when (modelClass) {
             HomeViewModel::class -> HomeViewModel(
-                productRepository = productRepository,
+                homeRepository = homeRepository,
                 categoryRepository = categoryRepository
             ) as T
             else -> throw IllegalArgumentException("Unknown ViewModel class: ${modelClass.simpleName}")
@@ -34,11 +34,11 @@ class ViewModelFactory(
  * Helper function to create a ViewModelFactory with default dependencies
  */
 fun createViewModelFactory(
-    productRepository: ProductRepository = ProductRepository(),
+    homeRepository: HomeRepository = HomeRepository(),
     categoryRepository: CategoryRepository = CategoryRepository()
 ): ViewModelFactory {
     return ViewModelFactory(
-        productRepository = productRepository,
+        homeRepository = homeRepository,
         categoryRepository = categoryRepository
     )
 }

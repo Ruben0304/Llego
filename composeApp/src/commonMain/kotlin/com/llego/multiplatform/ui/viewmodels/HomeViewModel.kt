@@ -2,11 +2,11 @@ package com.llego.multiplatform.ui.viewmodels
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.llego.multiplatform.data.repositories.ProductRepository
+import com.llego.multiplatform.data.repositories.HomeRepository
 import com.llego.multiplatform.data.repositories.CategoryRepository
-import com.llego.multiplatform.data.repositories.StoreRepository
 import com.llego.multiplatform.data.model.Product
 import com.llego.multiplatform.data.model.Store
+import com.llego.multiplatform.data.model.HomeData
 import com.llego.multiplatform.ui.components.organisms.CategoryData
 import com.llego.multiplatform.ui.state.HomeScreenState
 import com.llego.multiplatform.ui.state.HomeScreenEvent
@@ -17,13 +17,11 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.async
 
 class HomeViewModel(
-    private val productRepository: ProductRepository = ProductRepository(),
-    private val categoryRepository: CategoryRepository = CategoryRepository(),
-    private val storeRepository: StoreRepository = StoreRepository()
+    private val homeRepository: HomeRepository = HomeRepository(),
+    private val categoryRepository: CategoryRepository = CategoryRepository()
 ) : ViewModel() {
 
     private val _state = MutableStateFlow(HomeScreenState())
@@ -50,38 +48,36 @@ class HomeViewModel(
     }
 
     /**
-     * Load initial data (products, categories, and stores) concurrently
+     * Load initial data (home data and categories) concurrently
      */
     private fun loadData() {
         viewModelScope.launch {
             // Set all states to loading immediately
             _state.update { 
                 it.copy(
-                    productsState = UiState.Loading,
-                    categoriesState = UiState.Loading,
-                    storesState = UiState.Loading
+                    homeDataState = UiState.Loading,
+                    categoriesState = UiState.Loading
                 )
             }
             
             // Load all data sets concurrently
-            val productsDeferred = async { loadProductsData() }
+            val homeDataDeferred = async { loadHomeData() }
             val categoriesDeferred = async { loadCategoriesData() }
-            val storesDeferred = async { loadStoresData() }
             
-            // Wait for products and update state
+            // Wait for home data (products and stores) and update state
             try {
-                val products = productsDeferred.await()
-                val productCounts = products.associate { it.id to 0 }
+                val homeData = homeDataDeferred.await()
+                val productCounts = homeData.products.associate { it.id to 0 }
                 _state.update { 
                     it.copy(
-                        productsState = UiState.Success(products),
+                        homeDataState = UiState.Success(homeData),
                         productCounts = productCounts
                     )
                 }
             } catch (e: Exception) {
                 _state.update { 
                     it.copy(
-                        productsState = UiState.Error(e, "Failed to load products")
+                        homeDataState = UiState.Error(e, "Failed to load home data")
                     )
                 }
             }
@@ -99,131 +95,26 @@ class HomeViewModel(
                     )
                 }
             }
-            
-            // Wait for stores and update state
-            try {
-                val stores = storesDeferred.await()
-                _state.update { 
-                    it.copy(storesState = UiState.Success(stores))
-                }
-            } catch (e: Exception) {
-                _state.update { 
-                    it.copy(
-                        storesState = UiState.Error(e, "Failed to load stores")
-                    )
-                }
-            }
         }
     }
 
     /**
-     * Load products data (suspending function for concurrent loading)
+     * Load home data (products and stores) from unified repository
      */
-    private suspend fun loadProductsData(): List<Product> {
-        // Simulate network delay
-        delay(500)
-        return productRepository.getProducts()
+    private suspend fun loadHomeData(): HomeData {
+        return homeRepository.getHomeData()
     }
     
     /**
      * Load categories data (suspending function for concurrent loading)
      */
     private suspend fun loadCategoriesData(): List<CategoryData> {
-        // Simulate network delay
-        delay(300)
         return categoryRepository.getCategories()
     }
     
-    /**
-     * Load stores data (suspending function for concurrent loading)
-     */
-    private suspend fun loadStoresData(): List<Store> {
-        // Simulate network delay
-        delay(400)
-        return storeRepository.getStores()
-    }
 
-    /**
-     * Load products from repository
-     */
-    private fun loadProducts() {
-        viewModelScope.launch {
-            _state.update { it.copy(productsState = UiState.Loading) }
-            
-            try {
-                // Simulate network delay
-                delay(500)
-                
-                val products = productRepository.getProducts()
-                
-                // Initialize product counts
-                val productCounts = products.associate { it.id to 0 }
-                
-                _state.update { 
-                    it.copy(
-                        productsState = UiState.Success(products),
-                        productCounts = productCounts
-                    )
-                }
-            } catch (e: Exception) {
-                _state.update { 
-                    it.copy(
-                        productsState = UiState.Error(e, "Failed to load products")
-                    )
-                }
-            }
-        }
-    }
 
-    /**
-     * Load categories from repository
-     */
-    private fun loadCategories() {
-        viewModelScope.launch {
-            _state.update { it.copy(categoriesState = UiState.Loading) }
-            
-            try {
-                // Simulate network delay
-                delay(300)
-                
-                val categories = categoryRepository.getCategories()
-                _state.update { 
-                    it.copy(categoriesState = UiState.Success(categories))
-                }
-            } catch (e: Exception) {
-                _state.update { 
-                    it.copy(
-                        categoriesState = UiState.Error(e, "Failed to load categories")
-                    )
-                }
-            }
-        }
-    }
 
-    /**
-     * Load stores from repository
-     */
-    private fun loadStores() {
-        viewModelScope.launch {
-            _state.update { it.copy(storesState = UiState.Loading) }
-            
-            try {
-                // Simulate network delay
-                delay(400)
-                
-                val stores = storeRepository.getStores()
-                _state.update { 
-                    it.copy(storesState = UiState.Success(stores))
-                }
-            } catch (e: Exception) {
-                _state.update { 
-                    it.copy(
-                        storesState = UiState.Error(e, "Failed to load stores")
-                    )
-                }
-            }
-        }
-    }
 
     /**
      * Update search query
@@ -291,19 +182,7 @@ class HomeViewModel(
      * Retry loading data after error
      */
     private fun retryLoadingData() {
-        val currentState = _state.value
-        
-        if (currentState.productsState.isError()) {
-            loadProducts()
-        }
-        
-        if (currentState.categoriesState.isError()) {
-            loadCategories()
-        }
-        
-        if (currentState.storesState.isError()) {
-            loadStores()
-        }
+        loadData()
     }
 
     /**

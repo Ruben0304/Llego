@@ -63,8 +63,8 @@ The project uses a typical Compose Multiplatform structure with:
 - **Entry points**: `MainActivity.kt` (Android), `MainViewController.kt` (iOS), `main.kt` (Desktop)
 - **Main UI component** in `App.kt` with custom `LlegoTheme`
 - **Platform detection** through `Platform.kt` interface with platform-specific implementations
-- **Data layer**: Repository pattern for data access (`ProductRepository`, `CategoryRepository`)
-- **Models**: Data classes in `/data/model/` (Product)
+- **Data layer**: Repository pattern organized by screen (see GraphQL section below)
+- **Models**: Data classes in `/data/model/` (Product, Store, HomeData)
 - **State management**: UI state classes in `/ui/state/` (HomeScreenState, UiState)
 
 ## Testing
@@ -74,3 +74,79 @@ Tests are located in `commonTest` and use `kotlin-test` framework. Run tests wit
 .\gradlew.bat test  # Windows
 ./gradlew test      # macOS/Linux
 ```
+
+## GraphQL Integration
+
+The project uses Apollo GraphQL for data fetching with the following setup:
+
+### Backend Connection
+- **GraphQL Server**: `https://llegobackend-production.up.railway.app/graphql`
+- **Apollo Client Version**: 4.3.3
+- **Client Configuration**: Located in `data/network/GraphQLClient.kt`
+
+### Repository Architecture
+**IMPORTANT**: Use screen-based repositories instead of feature-based ones for GraphQL optimization:
+
+- ✅ **Correct**: `HomeRepository` - loads all data needed for home screen in a single GraphQL query
+- ❌ **Avoid**: `ProductRepository`, `StoreRepository` - separate queries cause multiple network calls
+
+### GraphQL Query Structure
+Queries are located in `/composeApp/src/commonMain/graphql/`:
+
+```graphql
+# GetHomeData.graphql - Unified query for home screen
+query GetHomeData {
+  products {
+    id
+    name
+    shop
+    weight
+    price
+    imageUrl
+  }
+  stores {
+    id
+    name
+    etaMinutes
+    logoUrl
+    bannerUrl
+  }
+}
+```
+
+### Repository Implementation Pattern
+```kotlin
+// Example: HomeRepository.kt
+class HomeRepository {
+    private val apolloClient = GraphQLClient.apolloClient
+    
+    suspend fun getHomeData(): HomeData {
+        val response = apolloClient.query(GetHomeDataQuery()).execute()
+        
+        if (response.hasErrors()) {
+            throw Exception("GraphQL errors: ${response.errors?.joinToString { it.message }}")
+        }
+        
+        val data = response.data ?: throw Exception("No data received from GraphQL server")
+        
+        // Map GraphQL response to domain models
+        return HomeData(
+            products = data.products.map { /* mapping */ },
+            stores = data.stores.map { /* mapping */ }
+        )
+    }
+}
+```
+
+### Code Generation
+Apollo automatically generates Kotlin classes from GraphQL queries:
+- Query classes: `GetHomeDataQuery`, `GetProductsQuery`, etc.
+- Data classes: `GetHomeDataQuery.Product`, `GetHomeDataQuery.Store`, etc.
+- Generated files are in `build/generated/source/apollo/`
+
+### Best Practices
+1. **One Repository per Screen**: Create repositories that fetch all data needed for a complete screen
+2. **Unified Queries**: Combine related data in single GraphQL queries to minimize network calls
+3. **Error Handling**: Always check `response.hasErrors()` and handle null data
+4. **Domain Mapping**: Convert GraphQL responses to domain models in repositories
+5. **No Mock Data**: All repositories should use real GraphQL calls, no fallback mock data
