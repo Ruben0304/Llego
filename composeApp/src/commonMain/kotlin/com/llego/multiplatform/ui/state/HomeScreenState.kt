@@ -14,7 +14,8 @@ data class HomeScreenState(
     val searchQuery: String = "",
     val selectedCategoryIndex: Int = 0,
     val productCounts: Map<Int, Int> = emptyMap(),
-    val filteredProducts: List<Product> = emptyList()
+    val filteredProducts: List<Product> = emptyList(),
+    val isInSeeMoreMode: Boolean = false
 ) {
     /**
      * Returns the list of products if successfully loaded, empty list otherwise

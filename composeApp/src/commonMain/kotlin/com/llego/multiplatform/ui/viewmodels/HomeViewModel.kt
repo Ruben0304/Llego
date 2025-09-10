@@ -185,9 +185,9 @@ class HomeViewModel(
      * Handle "See More" button click
      */
     private fun handleSeeMoreClick() {
-        // TODO: Implement navigation to full product list
-        // For now, just log or show a message
-        println("See More clicked - Navigate to full product list")
+        _state.update { currentState ->
+            currentState.copy(isInSeeMoreMode = !currentState.isInSeeMoreMode)
+        }
     }
 
     /**
