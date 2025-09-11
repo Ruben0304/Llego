@@ -7,13 +7,22 @@ import androidx.compose.animation.core.tween
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.scaleIn
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.itemsIndexed
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.outlined.ArrowBack
+import androidx.compose.material.icons.automirrored.outlined.ArrowBackIos
 import androidx.compose.material.icons.outlined.AddLocation
 import androidx.compose.material.icons.outlined.ArrowBack
 import androidx.compose.material.icons.outlined.EditLocation
@@ -28,6 +37,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -58,7 +68,9 @@ fun HomeScreen(
         val cardHeight = screenHeight * 0.28f
         val buttonHeight = screenHeight * 0.060f
 
-        CurvedBackground {
+        CurvedBackground(
+            homeState = state
+        ) {
             when {
                 state.isLoading -> {
                     LoadingContent()
@@ -149,10 +161,17 @@ private fun SuccessContent(
     )
     
     LaunchedEffect(state.isInSeeMoreMode) {
-        searchBarOffsetY.animateTo(
-            targetValue = if (state.isInSeeMoreMode) 10f else 0f,
-            animationSpec = tween(durationMillis = 600)
-        )
+        if (state.isInSeeMoreMode) {
+            // Cuando cambia a see more, empezar desde la posición inicial (negativa)
+            searchBarOffsetY.snapTo(-120f)
+            searchBarOffsetY.animateTo(
+                targetValue = 80f,
+                animationSpec = tween(durationMillis = 800)
+            )
+        } else {
+            // Cuando vuelve al estado inicial, resetear
+            searchBarOffsetY.snapTo(0f)
+        }
     }
     
     Column(
@@ -173,7 +192,7 @@ private fun SuccessContent(
             if (backButtonSize > 0.dp) {
                 CartButton(
                     modifier = Modifier.size(backButtonSize),
-                    icon = Icons.Outlined.ArrowBack,
+                    icon = Icons.AutoMirrored.Outlined.ArrowBackIos,
                     contentDescription = "back",
                     onClick = { onEvent(HomeScreenEvent.SeeMoreClicked) }
                 )
@@ -195,8 +214,9 @@ private fun SuccessContent(
                 Text(
                     text = "Productos",
                     style = MaterialTheme.typography.titleLarge,
-                    color = MaterialTheme.colorScheme.onPrimaryContainer,
+                    color = MaterialTheme.colorScheme.surface,
                     modifier = Modifier.weight(1f),
+                    fontWeight = FontWeight.Bold,
                     textAlign = TextAlign.Center
                 )
             }
@@ -209,6 +229,45 @@ private fun SuccessContent(
                 onClick = { onEvent(HomeScreenEvent.CartClicked) },
 //                badgeCount = if (state.totalCartItems > 0) state.totalCartItems else null
             )
+        }
+        
+        // LazyRow de categorías - solo visible en modo ver más
+        AnimatedVisibility(
+            visible = state.isInSeeMoreMode && state.categories.isNotEmpty(),
+            enter = slideInHorizontally(
+                initialOffsetX = { it },
+                animationSpec = tween(durationMillis = 600)
+            ) + fadeIn(animationSpec = tween(durationMillis = 600)),
+            exit = slideOutHorizontally(
+                targetOffsetX = { it },
+                animationSpec = tween(durationMillis = 400)
+            )
+        ) {
+            Spacer(modifier = Modifier.height(50.dp))
+            LazyRow(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 12.dp)
+                    .padding(top = 25.dp),
+                horizontalArrangement = Arrangement.spacedBy(20.dp),
+            ) {
+                itemsIndexed(state.categories) { index, category ->
+                    val isSelected = state.selectedCategoryIndex == index
+                    Text(
+                        text = category.text,
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = if (isSelected) 
+                            MaterialTheme.colorScheme.onSecondaryContainer
+                        else 
+                            MaterialTheme.colorScheme.onTertiary.copy(alpha = 0.6f),
+                        modifier = Modifier
+                            .clickable {
+                                onEvent(HomeScreenEvent.CategorySelected(index))
+                            }
+                    )
+                }
+            }
+            Spacer(modifier = Modifier.height(8.dp))
         }
         
         // Row separado para SearchBar + FilterButton en modo ver más (width completo)
@@ -304,7 +363,7 @@ private fun SuccessContent(
         ) {
             // Espacio inicial mayor en modo ver más para que el grid quede después de la searchbar
             if (state.isInSeeMoreMode) {
-                Spacer(modifier = Modifier.height(80.dp)) // Espacio adicional para el grid
+//                Spacer(modifier = Modifier.height(30.dp)) // Espacio adicional para el grid
                 
                 // Grid de productos en modo ver más
                 if (state.filteredProducts.isNotEmpty()) {

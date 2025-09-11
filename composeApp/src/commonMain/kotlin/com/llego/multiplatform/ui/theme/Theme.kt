@@ -20,6 +20,7 @@ val LightColors = lightColorScheme(
     secondary = Color(225, 199, 142),
     tertiary = Color(124, 65, 43),
     onSecondary = Color.Black,
+    onSecondaryContainer = Color(157, 205, 120),
     onTertiary = Color(147, 147, 150),
     background = Color(0xFFF3F3F3),
     onBackground = Color(0xFF1B1B1B),

@@ -28,7 +28,7 @@ fun CartButton(
         Icon(
             imageVector = icon,
             contentDescription = contentDescription,
-            tint = MaterialTheme.colorScheme.onSurface
+            tint = MaterialTheme.colorScheme.onSurfaceVariant
         )
     }
 }
