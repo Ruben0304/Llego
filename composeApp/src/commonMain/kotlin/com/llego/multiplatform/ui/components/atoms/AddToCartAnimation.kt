@@ -28,7 +28,7 @@ fun AddToCartAnimation(
 ) {
     val density = LocalDensity.current
     
-    val animationDurationMs = 1500
+    val animationDurationMs = 800
     
     var animationStarted by remember { mutableStateOf(false) }
     
@@ -55,15 +55,6 @@ fun AddToCartAnimation(
         label = "position_animation"
     )
     
-    val scaleAnimation by animateFloatAsState(
-        targetValue = if (animationStarted) 0.4f else 1f,
-        animationSpec = tween(
-            durationMillis = animationDurationMs,
-            easing = FastOutSlowInEasing
-        ),
-        label = "scale_animation"
-    )
-    
     if (isAnimating) {
         Box(
             modifier = modifier
@@ -81,11 +72,7 @@ fun AddToCartAnimation(
                 modifier = Modifier
                     .fillMaxSize()
                     .clip(CircleShape)
-                    .background(MaterialTheme.colorScheme.surface, CircleShape)
-                    .graphicsLayer(
-                        scaleX = scaleAnimation,
-                        scaleY = scaleAnimation
-                    ),
+                    .background(MaterialTheme.colorScheme.surface, CircleShape),
                 contentScale = ContentScale.Crop
             )
         }

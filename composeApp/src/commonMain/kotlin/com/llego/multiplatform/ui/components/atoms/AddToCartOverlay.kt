@@ -34,8 +34,6 @@ fun AddToCartOverlay(
     }
     
     Box(modifier = modifier.fillMaxSize()) {
-        content()
-        
         currentAnimation?.let { animation ->
             AddToCartAnimation(
                 imageUrl = animation.imageUrl,
@@ -47,9 +45,11 @@ fun AddToCartOverlay(
                     currentAnimation = null
                     onAnimationEnd()
                 },
-                modifier = Modifier.zIndex(1000f)
+                modifier = Modifier.zIndex(100000f)
             )
         }
+        
+        content()
     }
 }
 

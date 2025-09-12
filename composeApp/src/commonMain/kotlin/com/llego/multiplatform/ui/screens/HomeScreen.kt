@@ -40,6 +40,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.zIndex
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.llego.multiplatform.ui.components.atoms.CartButton
@@ -167,6 +168,8 @@ private fun SuccessContent(
     // Animation state
     var animationTrigger by remember { mutableStateOf<AnimationData?>(null) }
     val cartPosition = rememberCartPosition()
+    var triggerCartBounce by remember { mutableStateOf(false) }
+    var isCartBouncing by remember { mutableStateOf(false) }
     
     LaunchedEffect(state.isInSeeMoreMode) {
         if (state.isInSeeMoreMode) {
@@ -182,9 +185,19 @@ private fun SuccessContent(
         }
     }
     
+    // Coordinar animación de bounce entre CartButton y SearchBar
+    LaunchedEffect(triggerCartBounce) {
+        if (triggerCartBounce) {
+            isCartBouncing = true
+        }
+    }
+    
     AddToCartOverlay(
         animationTrigger = animationTrigger,
-        onAnimationEnd = { animationTrigger = null }
+        onAnimationEnd = { 
+            animationTrigger = null
+            triggerCartBounce = true
+        }
     ) {
         Column(
         modifier = Modifier.padding(top = 40.dp)
@@ -216,6 +229,7 @@ private fun SuccessContent(
                     modifier = Modifier
                         .weight(1f)
                         .height(buttonHeight),
+                    isCartBouncing = isCartBouncing,
 //                    value = state.searchQuery,
                     onValueChange = { query ->
                         onEvent(HomeScreenEvent.SearchQueryChanged(query))
@@ -237,11 +251,17 @@ private fun SuccessContent(
             CartButton(
                 modifier = Modifier
                     .size(buttonHeight)
-                    .trackCartPosition(cartPosition),
+                    .trackCartPosition(cartPosition)
+                    .zIndex(200000f),
                 icon = Icons.Outlined.ShoppingCart,
                 contentDescription = "cart",
-                onClick = { onEvent(HomeScreenEvent.CartClicked) },
-//                badgeCount = if (state.totalCartItems > 0) state.totalCartItems else null
+                badgeCount = state.totalCartItems.takeIf { it > 0 },
+                triggerBounce = triggerCartBounce,
+                onBounceEnd = { 
+                    triggerCartBounce = false 
+                    isCartBouncing = false 
+                },
+                onClick = { onEvent(HomeScreenEvent.CartClicked) }
             )
         }
         
@@ -298,6 +318,7 @@ private fun SuccessContent(
                     modifier = Modifier
                         .weight(1f)
                         .height(buttonHeight),
+                    isCartBouncing = isCartBouncing,
 //                    value = state.searchQuery,
                     onValueChange = { query ->
                         onEvent(HomeScreenEvent.SearchQueryChanged(query))

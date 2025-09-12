@@ -54,7 +54,7 @@ fun ProductCard(
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.surface
         ),
-        elevation = CardDefaults.cardElevation(4.dp)
+        elevation = CardDefaults.cardElevation(0.dp)
     ) {
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,

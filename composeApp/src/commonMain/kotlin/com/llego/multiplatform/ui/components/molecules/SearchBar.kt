@@ -1,4 +1,6 @@
 package com.llego.multiplatform.ui.components.molecules
+import androidx.compose.animation.core.*
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Search
@@ -17,9 +19,22 @@ import androidx.compose.ui.draw.clip
 fun SearchBar(
     modifier: Modifier = Modifier,
     hint: String = "Search for 'Grocery'",
+    isCartBouncing: Boolean = false,
     onValueChange: (String) -> Unit = {}
 ) {
     var text by remember { mutableStateOf("") }
+    
+    // Animación para dar espacio al bounce del carrito
+    val bounceOffset by animateDpAsState(
+        targetValue = if (isCartBouncing) 20.dp else 0.dp,
+        animationSpec = spring(
+            dampingRatio = Spring.DampingRatioLowBouncy,
+            stiffness = Spring.StiffnessMediumLow
+        )
+    )
+    
+    // Asegurar que el offset nunca sea negativo
+    val safeBounceOffset = maxOf(bounceOffset, 0.dp)
 
     TextField(
         value = text,
@@ -28,6 +43,7 @@ fun SearchBar(
             onValueChange(it)
         },
         modifier = modifier
+            .padding(end = safeBounceOffset)
             .clip(RoundedCornerShape(24.dp)),
         placeholder = {
             Text(
@@ -39,14 +55,14 @@ fun SearchBar(
             Icon(
                 imageVector = Icons.Default.Search,
                 contentDescription = "Search Icon",
-                tint = MaterialTheme.colorScheme.onSurface
+                tint = MaterialTheme.colorScheme.onSurfaceVariant
             )
         },
         colors = TextFieldDefaults.colors(
             focusedContainerColor = MaterialTheme.colorScheme.surface,
             unfocusedContainerColor = MaterialTheme.colorScheme.surface,
-            focusedTextColor = MaterialTheme.colorScheme.onSurface,
-            unfocusedTextColor = MaterialTheme.colorScheme.onSurface,
+            focusedTextColor = MaterialTheme.colorScheme.onSurfaceVariant,
+            unfocusedTextColor = MaterialTheme.colorScheme.onSurfaceVariant,
             focusedIndicatorColor = Color.Transparent,
             unfocusedIndicatorColor = Color.Transparent
         ),
