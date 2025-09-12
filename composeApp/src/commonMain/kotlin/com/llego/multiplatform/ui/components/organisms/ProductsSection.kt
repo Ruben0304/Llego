@@ -9,6 +9,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.geometry.Offset
 import com.llego.multiplatform.data.model.Product
 import com.llego.multiplatform.ui.components.molecules.ProductCard
 
@@ -21,6 +22,7 @@ fun ProductsSection(
     cardWidth: Dp,
     cardHeight: Dp,
     onSeeMoreClick: () -> Unit = {},
+    onAddToCartAnimation: ((String, Offset) -> Unit)? = null,
     modifier: Modifier = Modifier
 ) {
     Section(
@@ -42,6 +44,7 @@ fun ProductsSection(
                     count = productCounts[product.id] ?: 0,
                     onIncrement = { onIncrement(product.id) },
                     onDecrement = { onDecrement(product.id) },
+                    onAddToCartAnimation = onAddToCartAnimation,
                     modifier = Modifier.size(width = cardWidth, height = cardHeight)
                 )
             }

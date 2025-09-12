@@ -19,6 +19,10 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil3.compose.AsyncImage
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.layout.positionInRoot
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.runtime.*
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material.icons.Icons
@@ -40,8 +44,10 @@ fun ProductCard(
     count: Int,
     onIncrement: () -> Unit,
     onDecrement: () -> Unit,
+    onAddToCartAnimation: ((String, Offset) -> Unit)? = null,
     modifier: Modifier = Modifier
 ) {
+    var imagePosition by remember { mutableStateOf(Offset.Zero) }
     Card(
         modifier = modifier.padding(4.dp),
         shape = CurvedBottomShape(),
@@ -65,7 +71,16 @@ fun ProductCard(
                 SubcomposeAsyncImage(
                     model = imageUrl,
                     contentDescription = name,
-                    modifier = Modifier.size(84.dp),
+                    modifier = Modifier
+                        .size(84.dp)
+                        .onGloballyPositioned { coordinates ->
+                            val position = coordinates.positionInRoot()
+                            val size = coordinates.size
+                            imagePosition = Offset(
+                                x = position.x + size.width / 2f,
+                                y = position.y + size.height / 2f
+                            )
+                        },
                     contentScale = ContentScale.Fit
                 ) {
                     when (painter.state) {
@@ -149,7 +164,10 @@ fun ProductCard(
             // Controles de contador - padding proporcional
             CounterControls(
                 count = count,
-                onIncrement = onIncrement,
+                onIncrement = {
+                    onIncrement()
+                    onAddToCartAnimation?.invoke(imageUrl, imagePosition)
+                },
                 onDecrement = onDecrement,
                 modifier = Modifier.padding(bottom = 8.dp)
                     .height(36.dp)

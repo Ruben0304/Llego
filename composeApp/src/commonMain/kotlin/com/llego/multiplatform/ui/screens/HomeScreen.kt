@@ -43,6 +43,10 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.llego.multiplatform.ui.components.atoms.CartButton
+import com.llego.multiplatform.ui.components.atoms.AddToCartOverlay
+import com.llego.multiplatform.ui.components.atoms.AnimationData
+import com.llego.multiplatform.ui.components.atoms.rememberCartPosition
+import com.llego.multiplatform.ui.components.atoms.trackCartPosition
 import com.llego.multiplatform.ui.components.molecules.ProductCard
 import com.llego.multiplatform.ui.components.molecules.SearchBar
 import com.llego.multiplatform.ui.components.background.CurvedBackground
@@ -160,6 +164,10 @@ private fun SuccessContent(
         animationSpec = tween(durationMillis = 400)
     )
     
+    // Animation state
+    var animationTrigger by remember { mutableStateOf<AnimationData?>(null) }
+    val cartPosition = rememberCartPosition()
+    
     LaunchedEffect(state.isInSeeMoreMode) {
         if (state.isInSeeMoreMode) {
             // Cuando cambia a see more, empezar desde la posición inicial (negativa)
@@ -174,7 +182,11 @@ private fun SuccessContent(
         }
     }
     
-    Column(
+    AddToCartOverlay(
+        animationTrigger = animationTrigger,
+        onAnimationEnd = { animationTrigger = null }
+    ) {
+        Column(
         modifier = Modifier.padding(top = 40.dp)
     ) {
         // Fixed header section (SearchBar, Location, Slider)
@@ -223,7 +235,9 @@ private fun SuccessContent(
             
             // CartButton (siempre visible y fijo)
             CartButton(
-                modifier = Modifier.size(buttonHeight),
+                modifier = Modifier
+                    .size(buttonHeight)
+                    .trackCartPosition(cartPosition),
                 icon = Icons.Outlined.ShoppingCart,
                 contentDescription = "cart",
                 onClick = { onEvent(HomeScreenEvent.CartClicked) },
@@ -402,6 +416,13 @@ private fun SuccessContent(
                                     count = state.productCounts[product.id] ?: 0,
                                     onIncrement = { onEvent(HomeScreenEvent.IncrementProduct(product.id)) },
                                     onDecrement = { onEvent(HomeScreenEvent.DecrementProduct(product.id)) },
+                                    onAddToCartAnimation = { imageUrl, startPosition ->
+                                        animationTrigger = AnimationData(
+                                            imageUrl = imageUrl,
+                                            startPosition = startPosition,
+                                            endPosition = cartPosition.value
+                                        )
+                                    },
                                     modifier = Modifier.height(cardHeight)
                                 )
                             }
@@ -427,6 +448,13 @@ private fun SuccessContent(
                     cardHeight = cardHeight,
                     onSeeMoreClick = {
                         onEvent(HomeScreenEvent.SeeMoreClicked)
+                    },
+                    onAddToCartAnimation = { imageUrl, startPosition ->
+                        animationTrigger = AnimationData(
+                            imageUrl = imageUrl,
+                            startPosition = startPosition,
+                            endPosition = cartPosition.value
+                        )
                     }
                 )
             } else {
@@ -459,6 +487,7 @@ private fun SuccessContent(
         }
 
             Spacer(modifier = Modifier.height(16.dp))
+        }
         }
     }
 }
